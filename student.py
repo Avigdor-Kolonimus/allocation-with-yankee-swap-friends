@@ -34,7 +34,6 @@ class Student:
                 output.append(index)
         self.desired_courses = output
 
-
     def get_course_ratings(self):
         return self.course_ratings
     
