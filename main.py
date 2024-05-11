@@ -6,6 +6,7 @@ from item import Item
 from student import Student
 from algo_bfs import bfs_yankee_swap
 from algo import yankee_swap, yankee_swap_continue
+from algo_friendship_bfs import friendship_bfs_yankee_swap
 
 def read_friendship(file_name, total_courses=3):
     students = []
@@ -88,7 +89,8 @@ def main():
     
     # X, utility = yankee_swap(students, distributions)
     # X, utility = yankee_swap_continue(students, distributions)
-    X, utility = bfs_yankee_swap(students, distributions)
+    # X, utility = bfs_yankee_swap(students, distributions)
+    X, utility = friendship_bfs_yankee_swap(students, distributions)
 
     print("\nUtility: ", utility)
     for course_id,item in enumerate(X):

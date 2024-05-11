@@ -1,9 +1,5 @@
-import time
 import numpy as np
-import networkx as nx
 from queue import Queue
-from collections import deque
-import matplotlib.pyplot as plt
 
 from item import Item
 from student import Student
@@ -149,7 +145,7 @@ def calculate_utility(agents: [Student], items: [Item]):
 
     return utility
 
-def bfs_yankee_swap(agents: [Student], items: [Item], criteria='LorenzDominance', weights=0):
+def bfs_yankee_swap(agents: [Student], items: [Item]):
     count = 0
     n = len(agents)
     m = len(items)
