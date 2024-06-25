@@ -8,6 +8,11 @@ class Student:
         self.desired_courses = []
         self.total_courses = total_courses
 
+    def __eq__(self, other):
+        if isinstance(other, Student):
+            return self.student_id == other.student_id
+        return False
+
     def get_student_id(self):
         return self.student_id
     
