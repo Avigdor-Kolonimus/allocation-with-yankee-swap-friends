@@ -42,7 +42,5 @@ These Python scripts read a CSV file containing utility or gini coefficient valu
 3. Run the following command:
 
 ```bash
-   python main.py -s ./friendship.csv -c ./ratings.csv -d ./distributions.csv
-   # or
-   python main_folder.py -s ./friendship.csv -c ./ratings.csv
+   python main.py -s ./friendship.csv -c ./ratings.csv
 ```
