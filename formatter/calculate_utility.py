@@ -106,6 +106,8 @@ def calculate_utility(students, student_id, student_allocation, allocation, frie
 
     for index, value in enumerate(student_allocation):
         utility += value * students[student_id].get_course_rating(index)
+        if value == 0:
+            continue
         friendship_utility += calculate_friendship_utility(students[student_id], index, allocation, friendship_weight)
 
     return utility, friendship_utility
