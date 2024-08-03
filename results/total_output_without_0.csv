@@ -1,0 +1,8 @@
+folder_name,total_course_utility,total_friends_utility,total_utility,gini_coef
+60_courseLimit_1_weight_formated,459.0,479.46,938.46,11.06
+65_courseLimit_1_weight_formated,484.0,542.64,1026.64,11.41
+70_courseLimit_1_weight_formated,494.0,559.34,1053.34,11.2
+75_courseLimit_1_weight_formated,504.0,585.34,1089.34,11.27
+80_courseLimit_1_weight_formated,514.0,609.22,1123.22,11.18
+85_courseLimit_1_weight_formated,524.0,636.06,1160.06,11.61
+90_courseLimit_1_weight_formated,531.0,660.0,1191.0,12.23
