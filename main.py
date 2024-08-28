@@ -2,7 +2,6 @@ import os
 import csv
 import argparse
 import numpy as np
-import pandas as pd
 
 from item import Item
 from student import Student
@@ -13,12 +12,13 @@ directory = 'PATH\\TO\\input\\0w\\60_courseLimit_0_weight'
 
 # Define the output CSV file path
 output_csv_folder = 'PATH\\TO\\output\\0w\\60_courseLimit_0_weight'
+
 original_capacity = 60
 method = 1
 flag_friendship = True
 flag_course = True
-flag_distribution = False
-flag_course_limit = True
+flag_distribution = True
+flag_course_limit = False
 
 def read_friendship(file_name, total_courses=3):
     students = []
@@ -123,20 +123,21 @@ def main():
     count = 0
     # Print the path of each text file
     for csv_file in csv_files:
-        print("Start work with csv_file: ", csv_file)
-        csv_file_path = os.path.join(directory, csv_file)
+        for i in range(1, 51):
+            print("Start work with csv_file: ", csv_file)
+            csv_file_path = os.path.join(directory, csv_file)
         
-        students = read_friendship(args.students, args.total_courses)
-        students = read_course_ratings(args.courses, students)
-        distributions = read_distributions(csv_file_path,capacity=original_capacity)
+            students = read_friendship(args.students, args.total_courses)
+            students = read_course_ratings(args.courses, students)
+            distributions = read_distributions(csv_file_path,capacity=original_capacity)
 
-        X, _ = yankee_swap(students, distributions, method)
+            X, _ = yankee_swap(students, distributions, method)
 
-        # Open the CSV file in write mode
-        output_csv_file = os.path.join(output_csv_folder, str(count)+'.csv')
-        print("Stop work with csv_file, output csv: ", output_csv_file)
-        count += 1
-        # write_data_to_csv(output_csv_file, X)
+            # Open the CSV file in write mode
+            output_csv_file = os.path.join(output_csv_folder, str(count)+'_'+str(i)+'.csv')
+            print("Stop work with csv_file, output csv: ", output_csv_file)
+            count += 1
+            write_data_to_csv(output_csv_file, X)
 
     
 if __name__ == "__main__":

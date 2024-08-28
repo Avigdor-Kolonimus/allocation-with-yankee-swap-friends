@@ -33,8 +33,41 @@ def sort_courses_by_friendship(friends, courses, allocation_matrix):
 
     return sorted
 
+def sort_courses_by_friendship2(friends, courses, allocation_matrix, student_id):
+    sorted = [-1] * len(courses)
+    value_sorted = [-1] * len(courses)
+    max = 0
+    max_list = []
+
+    for course in courses:
+        count_friend = sum(1 for friend in friends if allocation_matrix[course][friend] == 1)
+        ind_recorded = course
+        if max<count_friend and allocation_matrix[course][student_id] == 1:
+            max=count_friend
+
+        for index, value in enumerate(sorted):
+            if value == -1:
+                sorted[index] = ind_recorded
+                value_sorted[index] = count_friend
+                break
+            elif value_sorted[index] < count_friend:
+                sorted[index], ind_recorded = ind_recorded, sorted[index]
+                value_sorted[index], count_friend = count_friend, value_sorted[index]
+    
+    for course in courses:
+        count_friend = sum(1 for friend in friends if allocation_matrix[course][friend] == 1)
+        ind_recorded = course
+        if max==count_friend and allocation_matrix[course][student_id] == 1:
+            max_list.append(course)
+
+    if len(max_list)>0:
+        return max, max_list
+    
+    return max, sorted
+
 def find_desired_course(agent_picked:Student, enrolled_courses, list_of_available_courses, allocation_matrix, method=1):
     list_of_selection_courses = list(list_of_available_courses.difference(enrolled_courses))
+    max = -1
     
     if len(list_of_selection_courses) == 0:
         return -1
@@ -43,13 +76,19 @@ def find_desired_course(agent_picked:Student, enrolled_courses, list_of_availabl
         return -1
     
     if method == 3 or method == 4:
-        list_of_selection_courses = sort_courses_by_friendship(agent_picked.get_only_friends(), list_of_selection_courses, allocation_matrix)
-        list_of_selection_courses = list(list_of_selection_courses)
-    
+        max, list_of_selection_courses = sort_courses_by_friendship2(agent_picked.get_only_friends(), list_of_selection_courses, allocation_matrix, agent_picked.get_student_id())
+        if max>0:
+            return rnd.choice(list_of_selection_courses)
+        
+    desired_courses = []
+    list_of_selection_courses = sort_courses_by_friendship(agent_picked.get_only_friends(), list_of_selection_courses, allocation_matrix)
     for selection_course in list_of_selection_courses:
         if agent_picked.is_desired(selection_course):
-            return selection_course
+            desired_courses.append(selection_course)
     
+    if len(desired_courses)>0:
+        return rnd.choice(desired_courses)
+
     return -1
 
 def find_not_desired_course(agent_picked:Student, enrolled_courses): 
@@ -79,6 +118,8 @@ def find_path(agent_picked, agents:[Student], items:[Item], allocation_matrix, m
 
         if(j == -1):
             enrolled_courses = [course_id for course_id in range(num_courses) if allocation_matrix[course_id, agent_picked] == 1]
+            if method == 5:
+                enrolled_courses = rnd.shuffle(enrolled_courses)
             selected_course = find_desired_course(agents[agent_picked], enrolled_courses, list_of_available_courses, allocation_matrix, method)
     
             while(selected_course != -1):
@@ -99,8 +140,13 @@ def find_path(agent_picked, agents:[Student], items:[Item], allocation_matrix, m
                 
             selected_course = find_desired_course(agents[agent_picked], enrolled_courses, list_of_available_courses, allocation_matrix, method)
         else: # Explore neighbors
-            for registred_student in [student_id for student_id in range(num_students) if allocation_matrix[j, student_id] == 1]:
+            registred_students = [student_id for student_id in range(num_students) if allocation_matrix[j, student_id] == 1]
+            if method == 5:
+                registred_students = rnd.shuffle(registred_students)
+            for registred_student in registred_students:
                 enrolled_courses = [course_id for course_id in range(num_courses) if ((allocation_matrix[course_id, registred_student] == 1)&(course_id != j))]
+                if method == 5:
+                    enrolled_courses = rnd.shuffle(enrolled_courses)
 
                 selected_course = find_desired_course(agents[registred_student], enrolled_courses, list_of_available_courses, allocation_matrix, method)
 
@@ -108,6 +154,8 @@ def find_path(agent_picked, agents:[Student], items:[Item], allocation_matrix, m
                     list_of_available_courses.remove(selected_course)
 
                     if(selected_course not in distances):
+                        # previous_item[jprime] = j
+                        # previous_agent[jprime] = iprime
                         distances[selected_course] = distances[j] + 1
 
                         if(allocation_matrix[selected_course, num_students] != 0):
@@ -132,22 +180,39 @@ def calculate_intersection(agent_id, agents: [Student], num_courses, allocation_
     return num_intersection
 
 def get_min_index(utility_vector, num_courses, agents: [Student], allocation_matrix, method):
-    agent_picked = 0
     argmin = 1_000_000
     num_friends = 1_000_000
+    min_agents = []
+    min_friendship_agents = []
+    
 
     for agent_id, utility in enumerate(utility_vector):
+        if utility < 1_000:
+            min_agents.append(agent_id)
         if argmin > utility:
             argmin = utility
-            agent_picked = agent_id
             num_friends = calculate_intersection(agent_id, agents, num_courses, allocation_matrix)
-        elif (method == 2 or method == 4) and argmin == utility:
-            tmp_num_friends = calculate_intersection(agent_id, agents, num_courses, allocation_matrix)
-            if num_friends > tmp_num_friends:
-                agent_picked = agent_id
-                num_friends = tmp_num_friends
+            min_agents = []
+            min_friendship_agents = []
+            min_agents.append(agent_id)
+            min_friendship_agents.append(agent_id)
+        elif argmin == utility:
+            if (method == 2 or method == 4):
+                tmp_num_friends = calculate_intersection(agent_id, agents, num_courses, allocation_matrix)
+                if num_friends > tmp_num_friends:
+                    num_friends = tmp_num_friends
+                    min_friendship_agents = []
+                    min_friendship_agents.append(agent_id)
+                elif num_friends == tmp_num_friends:
+                  min_friendship_agents.append(agent_id)
+            else:
+                min_agents.append(agent_id)
     
-    return agent_picked
+    if method == 1 or method == 3: 
+        return rnd.choice(min_agents)
+    else:
+        return rnd.choice(min_friendship_agents)
+    
 
 def calculate_utility(agents: [Student], items: [Item]):
     n = len(agents)
@@ -216,7 +281,10 @@ def find_path_original(agent_picked, agents:[Student], items:[Item], allocation_
                 
                 selected_course = find_desired_course(agents[agent_picked], enrolled_courses, list_of_available_courses, allocation_matrix, method)
         else: # Explore neighbors
-            for registred_student in [student_id for student_id in range(num_students) if allocation_matrix[j, student_id] == 1]:
+            registred_students = [student_id for student_id in range(num_students) if allocation_matrix[j, student_id] == 1]
+            rnd.shuffle(registred_students)
+            for registred_student in registred_students:
+            # for registred_student in [student_id for student_id in range(num_students) if allocation_matrix[j, student_id] == 1]:
                 enrolled_courses = [course_id for course_id in range(num_courses) if ((allocation_matrix[course_id, registred_student] == 1)&(course_id != j))]
                 
                 selected_course = find_desired_course(agents[registred_student], enrolled_courses, list_of_available_courses, allocation_matrix, method)
@@ -282,12 +350,20 @@ def yankee_swap(agents: [Student], items: [Item], method=1):
             sum += student
         allocation_matrix[course_id, num_agents] = item.capacity - sum
 
+    print("First validation")
+    validate_allocation(agents, items, allocation_matrix)
     allocation_matrix = fix_zero_allocation(agents, num_courses, allocation_matrix)
+    allocation_matrix = fix_allocation(agents, items, allocation_matrix)
 
     u_vector = calculate_utility(agents, items)
     for indexI, u in enumerate(u_vector):
         utility_vector[indexI] = float(u)
 
+    selected_course = -1
+    previous_agent = {}
+    previous_course = {}
+    rnd.seed(17)
+    print("Start")
     while(len(U) != 0):
         count += 1
         print("Iteration: %d" % count, end='\r')
@@ -304,6 +380,7 @@ def yankee_swap(agents: [Student], items: [Item], method=1):
             U.remove(agent_picked)
 
     allocation_matrix = fix_add_allocation(agents, num_courses, method, allocation_matrix)
+    print("Last validation")
     validate_allocation(agents, items, allocation_matrix)
 
     return allocation_matrix, u_vector
@@ -425,4 +502,23 @@ def validate_allocation(agents: [Student], items: [Item], allocation_matrix):
         count_course = sum(row[student_id] for row in allocation_matrix)
         if count_course > student.total_courses or count_course!=3:
             print(f"Warning student courses studentID={student_id} {student.total_courses} != {count_course}")
-        
+
+def fix_allocation(agents: [Student], items: [Item], allocation_matrix):
+    new_allocation_matrix = np.copy(allocation_matrix)
+    # students in course
+    for course_id, course in enumerate(items):
+        count_student = sum(allocation_matrix[course_id][:-1])
+        if count_student > course.capacity:
+            new_allocation_matrix[course_id, len(agents)] = 0
+
+    return new_allocation_matrix
+
+def find_not_desired(agent: Student, allocation_matrix):
+    not_desired = []
+
+    for selection_course, row in enumerate(allocation_matrix):
+        id = agent.student_id
+        if row[id] == 1 and not(agent.is_desired(selection_course)):
+            not_desired.append(selection_course)
+
+    return not_desired
