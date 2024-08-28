@@ -27,11 +27,31 @@ These Python scripts read a TXT files containing the output of the [DSA_RC](http
 
 These Python scripts read a CSV file containing utility or gini coefficient values corresponding to different weights (friendship parameter) and generate a line plot to visualize the data.
 
+## Original Input folder
+
+This folder contains the original input files used for the experiments:
+
+- `friendship.csv`: The friendship network CSV file.
+- `courses.csv`: The CSV file containing students' preferences.
+- `empty_input.zip`: Input folders for EYS-FI with the Empty Allocation experiment.
+- `random_input.zip`: Input folders for EYS-FI with Random Allocation.
+- `dsa_rc_input.zip`: Input folders for EYS-FI with DSA RC Allocation.
+
 ## Usage
 
 ### Prerequisites
 
 - Python installed (version 3.11.X)
+
+### Additional Parameters in main.py
+- `directory`: Folder where input CSV files are located.
+- `output_csv_folder`: Folder where the output CSV will be written.
+- `original_capacity`: Course limit.
+- `method`: Variation of the EYS-FI algorithm.
+- `flag_friendship`: Indicates if there is a friendship header in the file.
+- `flag_course`: Indicates if there is a course header in the file.
+- `flag_distribution`: Indicates if there is an allocation header in the file (CSV files from the input folder).
+- `flag_course_limit`: Indicates if there is a course limit column in the file.
 
 ### Running the Script
 
